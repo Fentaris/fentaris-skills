@@ -1,0 +1,14 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Fentaris",
+      "description": "Skills for creating, configuring, and extending Fentaris MCP proxy projects.",
+      "skills": [
+        "fentaris-project-setup",
+        "fentaris-app-development"
+      ]
+    }
+  ]
+}

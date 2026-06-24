@@ -1,6 +1,15 @@
 # Discovery
 
-Use this reference before creating a new Fentaris project. The goal is to help the user understand the proxy model and choose a setup workflow, not to interrogate them.
+Use this reference before creating a new Fentaris project or when introducing Fentaris. The goal is to help the user understand the proxy model, ask useful questions, and choose a setup workflow, not to interrogate them.
+
+## Route First
+
+Before asking setup questions, decide which help the user needs:
+
+- Introduction or architecture guidance: use this setup skill.
+- Brand-new proxy project: use this setup skill, then proceed to project creation after discovery.
+- Existing Fentaris app changes: tell the user to use `fentaris-app-development`, the skill for using, modifying, debugging, and validating Fentaris apps.
+- Fentaris framework repository changes: do not use this skill.
 
 ## Short Introduction
 
@@ -10,7 +19,7 @@ When the user is new to Fentaris, explain this mental model:
 - Fentaris puts one controlled proxy endpoint in front of those MCP servers.
 - The client connects to one stable URL, while Fentaris handles upstream server configuration, naming, users/groups, policy, secrets, logging, and runtime checks.
 
-Keep the explanation grounded in their case. For example:
+Keep the explanation grounded in their case and end with questions that move the decision forward. For example:
 
 - Solo local setup: "You get one local endpoint and can add/remove MCP servers without reconfiguring every client."
 - Team setup: "The team shares one governed MCP entrypoint instead of each machine having a different MCP setup."
@@ -18,7 +27,14 @@ Keep the explanation grounded in their case. For example:
 
 ## Discovery Questions
 
-Ask only the unanswered questions needed for the next decision. Prefer 3-6 questions at a time.
+Ask only the unanswered questions needed for the next decision. Prefer 1-4 questions when the user already gave project name, upstreams, auth intent, or runtime scope; use 3-6 only for broad architecture requests. If enough information is present to create a local project safely, proceed instead of asking for perfect detail.
+
+### Orientation
+
+- Are you trying to understand Fentaris, set up a first proxy, or change an existing Fentaris app?
+- What is the first MCP client or app that should connect to Fentaris?
+- What pain are you trying to remove: repeated client configuration, shared team setup, policy/governance, encrypted secret handling, logging, or multi-user routing?
+- Do you want a quick local prototype or a project shaped for a team/server later?
 
 ### Users And Access
 
@@ -38,7 +54,7 @@ Ask only the unanswered questions needed for the next decision. Prefer 3-6 quest
 
 - Which MCP servers should be connected first?
 - For each server, is it stdio, Streamable HTTP, SSE/HTTP, or unknown?
-- Which servers require credentials?
+- Which servers require credentials that should be stored as Fentaris encrypted secrets?
 - Which tools should be allowed initially, and which should be blocked?
 
 ### Governance
@@ -74,3 +90,11 @@ Initial project shape:
 ```
 
 Then ask for confirmation only if a decision is risky or irreversible. Otherwise proceed with the setup.
+
+For a solo local proxy with known upstream names and auth requested, the usual recommendation is:
+
+- Local Developer Proxy
+- `127.0.0.1` host, `/mcp` path, generated or user-selected port
+- Fentaris-managed auth/identity if available
+- Fentaris encrypted secrets for upstream credentials
+- Broad development policy only when explicitly labeled temporary

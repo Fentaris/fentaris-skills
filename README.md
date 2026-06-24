@@ -6,11 +6,13 @@ These skills are designed for the open agent skills ecosystem and can be install
 
 ## Install
 
-Install all Fentaris skills into your current project:
+Install all Fentaris skills into your current project. This is the recommended path because the setup skill routes existing app work to the app-development skill:
 
 ```bash
 npx skills add Fentaris/fentaris-skills --skill '*'
 ```
+
+Avoid installing only `fentaris-project-setup` unless you only want onboarding and brand-new project creation. Existing Fentaris app changes need `fentaris-app-development`; without it, agents may lack the app modification guidance they need.
 
 Install globally for Codex:
 

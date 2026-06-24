@@ -17,6 +17,7 @@ Use this skill to guide an external user from "what is Fentaris and how should I
 2. Route the user before implementing:
    - If they need orientation, architecture advice, or first-time setup, continue with this skill.
    - If they already have a Fentaris project and ask to add/change servers, users, policies, approvals, secrets, logging, tests, or TypeScript integration, tell them to use `fentaris-app-development` and switch to that workflow when available.
+   - If `fentaris-app-development` is not available in the current agent session, do not inspect Fentaris framework source files or compiled package internals to infer app modification patterns. Tell the user to install all Fentaris skills with `--skill '*'`, or install `fentaris-app-development` explicitly, before continuing with existing-app modification work.
    - If they ask how to use Fentaris after setup, point them to `fentaris-app-development` as the operating/modification skill.
 3. Read `references/discovery.md` and ask only the missing high-value questions needed to choose a workflow. Prefer 3-6 concrete questions, grouped by the decision they unlock:
    - Who will use the proxy: one developer, multiple local users, a team, multiple machines, cloud service, or tenant-based app?

@@ -1,6 +1,6 @@
 # Fentaris Skills
 
-Agent skills for setting up and developing Fentaris projects.
+Agent skills for introducing, setting up, and developing Fentaris projects.
 
 These skills are designed for the open agent skills ecosystem and can be installed with [`npx skills`](https://github.com/vercel-labs/skills). The same repository can target Codex, Claude Code, Cursor, OpenCode, Gemini CLI, and other supported agents.
 
@@ -47,12 +47,18 @@ npx skills add ./fentaris-skills --skill '*'
 
 ### `fentaris-project-setup`
 
-Use this when an agent should introduce Fentaris, ask setup questions, choose the right proxy workflow, create/configure a Fentaris proxy project, validate it, and explain the result.
+Use this when an agent should introduce Fentaris, ask useful setup questions, route existing app work to `fentaris-app-development`, choose the right proxy workflow, create/configure a Fentaris proxy project, validate it, and explain the result.
 
 Good prompt:
 
 ```txt
 Use $fentaris-project-setup to help me create a Fentaris proxy for my team.
+```
+
+Good intro prompt:
+
+```txt
+Use $fentaris-project-setup to explain how Fentaris fits my MCP setup and what questions I should answer before creating a project.
 ```
 
 ### `fentaris-app-development`

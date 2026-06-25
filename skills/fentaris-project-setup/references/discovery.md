@@ -17,7 +17,7 @@ When the user is new to Fentaris, explain this mental model:
 
 - MCP clients usually need to know every server they connect to.
 - Fentaris puts one controlled proxy endpoint in front of those MCP servers.
-- The client connects to one stable URL, while Fentaris handles upstream server configuration, naming, users/groups, policy, secrets, logging, and runtime checks.
+- The client connects to one stable URL, while Fentaris handles upstream server configuration, app-owned local MCP capabilities, naming, users/groups, API keys, policy, secrets, logging, and runtime checks.
 
 Keep the explanation grounded in their case and end with questions that move the decision forward. For example:
 
@@ -41,6 +41,7 @@ Ask only the unanswered questions needed for the next decision. Prefer 1-4 quest
 - Is this for one developer, a small team, or users of an application?
 - Should different users or groups see different tools?
 - Are users known locally, passed from an existing app, or not defined yet?
+- Should users authenticate with Fentaris-managed API keys in the `x-fentaris-api-key` header?
 - Is there an existing auth boundary, such as API keys, headers from your backend, or a gateway?
 
 ### Machines And Runtime
@@ -55,6 +56,7 @@ Ask only the unanswered questions needed for the next decision. Prefer 1-4 quest
 - Which MCP servers should be connected first?
 - For each server, is it stdio, Streamable HTTP, SSE/HTTP, or unknown?
 - Which servers require credentials that should be stored as Fentaris encrypted secrets?
+- Does Fentaris need to expose custom/local MCP tools, resources, prompts, or completions implemented in the app itself?
 - Which tools should be allowed initially, and which should be blocked?
 
 ### Governance
@@ -83,8 +85,9 @@ Reason:
 
 Initial project shape:
 - Endpoint: <local/shared/cloud-shaped>
-- Users/auth: <local users/API key/header identity/none yet>
+- Users/auth: <local users/Fentaris API keys/header identity/none yet>
 - MCP servers: <list>
+- Local custom capabilities: <none/tools/resources/prompts/completions>
 - Policies: <starting policy>
 - Validation: <checks to run>
 ```
@@ -97,4 +100,5 @@ For a solo local proxy with known upstream names and auth requested, the usual r
 - `127.0.0.1` host, `/mcp` path, generated or user-selected port
 - Fentaris-managed auth/identity if available
 - Fentaris encrypted secrets for upstream credentials
+- `fentaris auth api-key` for local user API keys when user auth is needed
 - Broad development policy only when explicitly labeled temporary

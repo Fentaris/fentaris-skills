@@ -49,7 +49,7 @@ npx skills add ./fentaris-skills --skill '*'
 
 ### `fentaris-project-setup`
 
-Use this when an agent should introduce Fentaris, ask useful setup questions, route existing app work to `fentaris-app-development`, choose the right proxy workflow, create/configure a Fentaris proxy project, validate it, and explain the result.
+Use this when an agent should introduce Fentaris, ask useful setup questions, route existing app work to `fentaris-app-development`, choose the right proxy workflow, create/configure a Fentaris proxy project, add supported user API keys, validate it, and explain the result.
 
 Good prompt:
 
@@ -65,7 +65,7 @@ Use $fentaris-project-setup to explain how Fentaris fits my MCP setup and what q
 
 ### `fentaris-app-development`
 
-Use this when an existing application already uses Fentaris and an agent needs to add or change upstream MCP servers, policy, users/groups, middleware, hooks, approvals, secrets, logging, endpoint configuration, tests, or TypeScript integration.
+Use this when an existing application already uses Fentaris and an agent needs to add or change upstream MCP servers, custom local MCP capabilities, policy, users/groups, API keys, middleware, hooks, approvals, secrets, logging, endpoint configuration, tests, or TypeScript integration.
 
 Good prompt:
 
@@ -89,4 +89,5 @@ npx skills add ./fentaris-skills --list
 
 - OAuth 2.1 setup is not supported by Fentaris yet; the setup skill should guide users toward API keys, trusted headers, or an existing auth boundary when needed.
 - Fentaris deploy is not available yet; the setup skill should shape projects so they can move to the future CLI deploy flow cleanly.
-- The skills prefer the high-level Fentaris API for normal setup and app changes.
+- The skills prefer the high-level Fentaris API for normal setup and app changes, including `app.mcp(...)` for upstreams and `app.local(...)` for app-owned custom MCP capabilities.
+- Fentaris CLI 1.1.0 and newer can manage local user API keys with `fentaris auth api-key`; the skills should use that instead of custom registration scripts.

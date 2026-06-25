@@ -19,6 +19,7 @@ Choose this when a team shares multiple upstream MCP servers through one endpoin
 
 - Use stable server names because they become client-visible prefixes.
 - Add users/groups and policies early.
+- Add Fentaris-managed API keys with `fentaris auth api-key` when local user identity is needed.
 - Add request identity mapping if the proxy receives headers such as user, tenant, trace, or environment.
 - Use logging/audit hooks when the user wants observability.
 - Ask whether team members connect from different machines. If yes, design the endpoint and host/network assumptions explicitly instead of leaving a laptop-local default.
@@ -29,7 +30,7 @@ Choose this when the user mentions production, staging, governance, approvals, c
 
 - Bind publicly only when a deployment boundary is explicit.
 - Configure auth, policies, logging, and Fentaris encrypted secrets before exposure.
-- Do not promise OAuth 2.1 support. Use API-key/header identity or an existing trusted auth boundary until OAuth 2.1 support exists.
+- Do not promise OAuth 2.1 support. Use Fentaris-managed API keys, trusted header identity, or an existing trusted auth boundary until OAuth 2.1 support exists.
 - Keep endpoint path, host, and port stable and configurable through `fentaris.json`.
 - Do not run or invent deploy commands. State that Fentaris deploy is not available yet and the CLI is expected to add a smoother deploy flow later.
 
@@ -46,5 +47,6 @@ Choose this when the user already has a TypeScript service and wants Fentaris in
 Choose this only when the user needs to connect a non-standard MCP source or custom exposure.
 
 - Prefer built-in transport helpers first.
+- For app-owned custom tools/resources/prompts/completions, use `app.local(name)` instead of custom transports or extensions.
 - Use extension contracts from `@fentaris/core/extensions` for custom integrations.
 - Use advanced low-level proxy/transport APIs only when explicitly requested or required.

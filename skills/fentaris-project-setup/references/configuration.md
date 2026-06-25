@@ -11,11 +11,13 @@
 7. Configure `fentaris.json` for project discovery, runtime entrypoint, port, host, endpoint path, and local auth directory.
 8. Edit the TypeScript entrypoint only for the smallest supported app declaration changes:
    - `fentaris(...)` as the app boundary.
-   - `mcp(...)` for upstream servers.
+   - `app.mcp(...)` or `mcp(...)` for upstream servers.
+   - `app.local(...)` for custom/local MCP servers and methods implemented inside the app.
    - `policy(...)`, `group(...)`, and `user(...)` for access control.
    - Built-in transport helpers such as stdio or Streamable HTTP where appropriate.
 9. Add secrets through Fentaris encrypted secret commands with `--non-interactive`. Do not store secret values in `.env` files or raw environment variables, and do not embed secret values in code.
-10. Add docs only when they help the user run the generated project. Do not add custom scripts unless the user explicitly requested the script and no CLI command exists.
+10. Add user API keys through `fentaris auth api-key` commands when the installed CLI is 1.1.0 or newer; do not create custom registration scripts.
+11. Add docs only when they help the user run the generated project. Do not add custom scripts unless the user explicitly requested the script and no CLI command exists.
 
 ## User And Runtime Decisions
 
@@ -32,19 +34,13 @@ Prefer the generated entrypoint and keep it small. Runtime config such as host, 
 When TypeScript edits are necessary, prefer a single readable app boundary:
 
 ```ts
-import { fentaris, group, mcp, policy, stdio, user } from "@fentaris/core";
+import { fentaris, group, policy, stdio, user } from "@fentaris/core";
 
 const supportPolicy = policy("support")
   .mcp("github")
   .allow("create_issue");
 
 const app = fentaris({
-  servers: [
-    mcp("github", {
-      displayName: "GitHub",
-      transport: stdio({ command: "github-mcp-server" }),
-    }),
-  ],
   groups: [
     group({
       id: "support",
@@ -55,10 +51,39 @@ const app = fentaris({
   autoLog: true,
 });
 
+app.mcp("github", {
+  displayName: "GitHub",
+  transport: stdio({ command: "github-mcp-server" }),
+});
+
 await app.start();
 ```
 
 Adapt the example to the user's actual upstreams and package manager. Do not copy it blindly when the generated project already has a suitable structure.
+
+## Custom Local MCP Capabilities
+
+When a project needs custom methods or app-owned MCP capabilities, use `app.local(name)`. This creates a local MCP server inside Fentaris, so normal policy, middleware, events, logging, and client-visible naming apply.
+
+```ts
+import { Policy, fentaris } from "@fentaris/core";
+
+const app = fentaris({
+  policy: new Policy({ name: "workspace" }).mcp("workspace").allow("status"),
+});
+
+app.local("workspace")
+  .tool("status", { inputSchema: { type: "object" } }, (ctx) => ({
+    content: [{ type: "text", text: `ready:${ctx.auth.userId ?? "anonymous"}` }],
+  }))
+  .resource("config://current", { name: "Current config" }, (_ctx, params) => ({
+    contents: [{ uri: params.uri, text: "ok" }],
+  }));
+
+await app.start();
+```
+
+Use this pattern for app-owned tools, resources, resource templates, prompts, and completions. Keep the local namespace distinct from upstream server names. Do not build a custom transport or plugin when `app.local(...)` fits.
 
 ## What Not To Generate
 
@@ -73,7 +98,7 @@ Avoid these patterns unless the user explicitly asks and the Fentaris CLI/docs d
 - Reading compiled files under `node_modules/@fentaris/core/dist/*` to infer public API.
 - Shell-wrapped MCP commands such as `sh -lc` when direct command/args are possible.
 
-If the user asks for per-agent statistics, map that to Fentaris-supported identity/users/groups first. If the current CLI cannot register agents non-interactively, tell the user the project is ready for per-agent auth but do not invent a separate registration system.
+If the user asks for per-agent statistics, map that to Fentaris-supported identity/users/groups first and add API keys with `fentaris auth api-key`.
 
 ## Upstream MCP Servers
 
@@ -104,6 +129,18 @@ Use Fentaris CLI secret management as the default path for credentials.
 - Do not create `.env` files for secret values unless the user explicitly rejects Fentaris encrypted secrets and accepts the tradeoff.
 - Do not echo, log, document, or commit secret values.
 - If a secret value is required and the user has not provided it through a safe path, stop and ask for the value or for permission to leave a placeholder secret name.
+
+## User API Keys
+
+For Fentaris CLI 1.1.0 and newer, user API keys are CLI-managed local auth state:
+
+- Add a provided key with `fentaris auth api-key add <user-id> --value-stdin`.
+- Generate a new key with `fentaris auth api-key add <user-id> --generate`; record it for the user only once because Fentaris stores a hash.
+- List stored key counts with `fentaris auth api-key list --user <user-id> --json` when automation needs structured output.
+- Remove a key with `fentaris auth api-key remove <user-id> --value-stdin`.
+- Clients authenticate with `x-fentaris-api-key`.
+
+Prefer `--value-stdin` over `--value` because command arguments can expose secrets. Use `--key` or `FENTARIS_AUTH_KEY` only according to the project's local secrets backend setup, and never print user-provided key values.
 
 ## Validation
 

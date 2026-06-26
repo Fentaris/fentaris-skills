@@ -5,8 +5,8 @@
 1. Explain the selected workflow and why it fits the user's users, machines, runtime, MCP servers, and current auth constraints.
 2. Create or select the project directory.
 3. Install or use the Fentaris CLI.
-4. Run `fentaris init --help` and choose explicit CLI options for package manager, host, port, path, install, and git behavior instead of relying on interactive prompts.
-5. Generate the project with `fentaris init <project-name> --non-interactive` plus the explicit options supported by the installed CLI. If `--non-interactive` still prompts, use documented options or ask the user for that one prompt value.
+4. Run `fentaris init --help` and choose explicit CLI options for package manager, port, path, install, and git behavior instead of relying on interactive prompts.
+5. Generate the project with `fentaris init <project-name> --non-interactive` plus the explicit options supported by the installed CLI: `--package-manager <pnpm|npm|bun>`, `--port <port>`, `--path <path>`, `--skip-install`, and `--skip-git`. If `--non-interactive` still prompts, use documented options or ask the user for that one prompt value.
 6. Inspect the generated project before editing. Prefer CLI commands and generated config over TypeScript rewrites.
 7. Configure `fentaris.json` for project discovery, runtime entrypoint, port, host, endpoint path, and local auth directory.
 8. Edit the TypeScript entrypoint only for the smallest supported app declaration changes:

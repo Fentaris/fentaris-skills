@@ -73,6 +73,16 @@ Good prompt:
 Use $fentaris-app-development to add a GitHub MCP upstream and policy to this app.
 ```
 
+### `fentaris-cli-usage`
+
+Use this when an agent needs to explain or run a `fentaris` CLI command itself: what a command/subcommand does, which flags it accepts, how to run it non-interactively, and how to read its JSON output. Covers `init`, `dev`, `build`, `check`, `doctor`, `auth`/`auth api-key`, `secrets`, `tools`, and `edge`. It does not choose project architecture (`fentaris-project-setup`) or edit application TypeScript (`fentaris-app-development`).
+
+Good prompt:
+
+```txt
+Use $fentaris-cli-usage to explain fentaris doctor --fix and run it non-interactively.
+```
+
 ## List Skills
 
 ```bash

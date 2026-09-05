@@ -7,7 +7,8 @@
       "description": "Skills for introducing, creating, configuring, and extending Fentaris MCP proxy projects.",
       "skills": [
         "fentaris-project-setup",
-        "fentaris-app-development"
+        "fentaris-app-development",
+        "fentaris-cli-usage"
       ]
     }
   ]

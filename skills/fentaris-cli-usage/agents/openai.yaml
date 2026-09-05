@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fentaris CLI Usage"
+  short_description: "Explain and run Fentaris CLI commands"
+  default_prompt: "Use $fentaris-cli-usage to explain what a Fentaris CLI command does and run it non-interactively with the right flags."

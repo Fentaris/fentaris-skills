@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fentaris Machine Setup"
+  short_description: "Install Fentaris and migrate MCP clients"
+  default_prompt: "Use $fentaris-machine-setup to install Fentaris on this computer, offer to migrate approved existing MCP servers, configure selected AI clients, and validate the setup with backups and rollback."

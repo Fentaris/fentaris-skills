@@ -1,6 +1,6 @@
 # Fentaris Skills
 
-Agent skills for introducing, setting up, and developing Fentaris projects.
+Agent skills for installing Fentaris, migrating existing MCP client configuration, and creating or developing Fentaris projects.
 
 These skills are designed for the open agent skills ecosystem and can be installed with [`npx skills`](https://github.com/vercel-labs/skills). The same repository can target Codex, Claude Code, Cursor, OpenCode, Gemini CLI, and other supported agents.
 
@@ -12,7 +12,7 @@ Install all Fentaris skills into your current project. This is the recommended p
 npx skills add Fentaris/fentaris-skills --skill '*'
 ```
 
-Avoid installing only `fentaris-project-setup` unless you only want onboarding and brand-new project creation. Existing Fentaris app changes need `fentaris-app-development`; without it, agents may lack the app modification guidance they need.
+Avoid installing only `fentaris-project-setup` unless you only want project-level onboarding and brand-new project creation. Whole-machine bootstrap and MCP client migration need `fentaris-machine-setup`, while existing Fentaris app changes need `fentaris-app-development`.
 
 Install globally for Codex:
 
@@ -32,20 +32,25 @@ Install globally for every supported agent:
 npx skills add Fentaris/fentaris-skills -g --all
 ```
 
-Before the GitHub repo exists, install from a local checkout:
+To test a local checkout before publishing changes, run this from its parent directory:
 
 ```bash
-npx skills add ./fentaris-skills --skill '*'
-```
-
-From the parent folder used during local development:
-
-```bash
-cd /Users/gabry848/Desktop/panter
 npx skills add ./fentaris-skills --skill '*'
 ```
 
 ## Included Skills
+
+### `fentaris-machine-setup`
+
+Use this for a new-computer or whole-machine setup: install prerequisites and the CLI, install these skills for selected AI clients, inventory existing MCP configuration, create a local proxy, migrate approved servers safely, configure selected clients, and validate the result with backups and rollback instructions.
+
+Good prompt:
+
+```txt
+Use $fentaris-machine-setup to install Fentaris on this computer, offer to migrate my existing MCP servers, and configure my selected AI clients.
+```
+
+The copy-and-paste prompt intended for the Fentaris website is available at [`skills/fentaris-machine-setup/references/website-prompt.md`](./skills/fentaris-machine-setup/references/website-prompt.md).
 
 ### `fentaris-project-setup`
 
@@ -75,7 +80,7 @@ Use $fentaris-app-development to add a GitHub MCP upstream and policy to this ap
 
 ### `fentaris-cli-usage`
 
-Use this when an agent needs to explain or run a `fentaris` CLI command itself: what a command/subcommand does, which flags it accepts, how to run it non-interactively, and how to read its JSON output. Covers `init`, `dev`, `build`, `check`, `doctor`, `auth`/`auth api-key`, `secrets`, `tools`, and `edge`. It does not choose project architecture (`fentaris-project-setup`) or edit application TypeScript (`fentaris-app-development`).
+Use this when an agent needs to explain or run a `fentaris` CLI command itself: what a command/subcommand does, which flags it accepts, how to run it non-interactively, and how to read its JSON output. Covers `init`, `dev`, `build`, `check`, `doctor`, upstream OAuth and local API-key commands under `auth`, `secrets`, `tools`, and `edge`. It does not choose project architecture (`fentaris-project-setup`) or edit application TypeScript (`fentaris-app-development`).
 
 Good prompt:
 
@@ -97,7 +102,7 @@ npx skills add ./fentaris-skills --list
 
 ## Notes
 
-- OAuth 2.1 setup is not supported by Fentaris yet; the setup skill should guide users toward API keys, trusted headers, or an existing auth boundary when needed.
-- Fentaris deploy is not available yet; the setup skill should shape projects so they can move to the future CLI deploy flow cleanly.
+- Fentaris supports OAuth 2.1 for native Streamable HTTP and SSE upstreams through `oauth()`, including PKCE, refresh, per-user authorization, and encrypted token storage. This is upstream authentication; client access to the Fentaris proxy remains a separate identity/auth decision.
+- Fentaris deploy is not available yet; the setup skills should shape projects so they can move to the future CLI deploy flow cleanly.
 - The skills prefer the high-level Fentaris API for normal setup and app changes, including `app.mcp(...)` for upstreams and `app.local(...)` for app-owned custom MCP capabilities.
 - Fentaris CLI 1.1.0 and newer can manage local user API keys with `fentaris auth api-key`; the skills should use that instead of custom registration scripts.

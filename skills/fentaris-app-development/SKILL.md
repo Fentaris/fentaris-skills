@@ -15,7 +15,7 @@ Use this skill when working inside an external application that already uses Fen
    - Check the installed Fentaris version and CLI help when changing auth or custom capability behavior; Fentaris CLI 1.1.0 added supported local user API-key commands.
    - Preserve existing style, module boundaries, and runtime assumptions.
 2. Read `references/api-guidance.md` before choosing APIs or imports.
-3. Read `references/common-changes.md` for upstreams, local/custom MCP capabilities, policies, users/groups, middleware, hooks, secrets, API keys, and endpoint changes.
+3. Read `references/common-changes.md` for upstreams, upstream OAuth 2.1, local/custom MCP capabilities, policies, users/groups, middleware, hooks, secrets, API keys, and endpoint changes.
 4. Prefer high-level `@fentaris/core` application builders and declaration helpers, including `app.mcp(...)` for upstreams and `app.local(...)` for custom/local MCP capabilities. Use advanced low-level proxy/transport APIs only when the user explicitly requests direct wiring or the existing app already uses them.
 5. If behavior is uncertain or version-sensitive, consult `https://fentaris.mintlify.app` or local Fentaris docs when available before implementing.
 6. Implement the smallest coherent change. Update related config, env examples, tests, and local docs when the change affects them.
@@ -26,6 +26,7 @@ Use this skill when working inside an external application that already uses Fen
 
 - Do not expose a local proxy externally without explicit user intent.
 - Do not weaken existing policy or auth unless the user explicitly requests it and the risk is called out.
+- Keep client-to-Fentaris auth separate from upstream OAuth. Use `oauth()` only on native Streamable HTTP or SSE upstreams, preserve human consent for authorization-code flows, and require persistent encrypted token storage outside throwaway development.
 - Do not log secret values or commit local encrypted secret stores unless project docs say they are safe.
 - Keep server names stable because they affect client-visible tool prefixes.
 - Avoid deep imports from `@fentaris/core/dist/*` or source-layout paths.

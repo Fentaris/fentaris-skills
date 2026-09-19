@@ -132,15 +132,53 @@ Typical sequence: `fentaris check --offline` before starting the proxy, then `fe
 
 ## `fentaris auth`
 
-Manage local identity authentication.
+Manage two separate auth surfaces:
+
+- Upstream OAuth 2.1 authorizations with `login`, `status`, and `logout` for MCP servers declared with `oauth()`.
+- Local client identity API keys with `api-key`. Omit the subcommand to open the guided API-key menu; automation should use explicit subcommands.
 
 ```
 fentaris auth [OPTIONS] [COMMAND]
 ```
 
-Omit the subcommand to open an interactive menu for adding, listing, or removing local API keys (not for automation — use explicit subcommands there).
-
 Options: `--key <KEY>` (use an explicit local encryption key instead of `FENTARIS_AUTH_KEY` or an interactive prompt; prefer `FENTARIS_AUTH_KEY` for automation), `--help`/`-h`.
+
+### `fentaris auth login <mcp>`
+
+Authorize an upstream MCP server declared with `oauth()`. Fentaris opens the authorization URL, owns a loopback redirect listener, exchanges the code, and writes encrypted OAuth state.
+
+```bash
+fentaris auth login linear --as user:alice
+fentaris auth login linear --print-url
+fentaris auth login github --port 8976 --json
+```
+
+Important options:
+
+- `--as <selector>` — `user:<id>` or `shared`; omit for shared authorization.
+- `--print-url` — print the URL instead of opening a browser. Use for headless environments.
+- `--port <port>` — fixed loopback redirect port for preregistered clients.
+- `--timeout <seconds>` — bound the redirect wait; default `300`.
+- `--json` — machine-readable output.
+
+`--print-url` and global `--non-interactive` never spawn a browser. Authorization-code login still requires a human to complete consent. With `--print-url`, stdout contains the bare authorization URL before any final JSON envelope, so the complete stream is not one parseable JSON document. A running proxy observes newly written tokens without a restart.
+
+### `fentaris auth status [mcp]`
+
+List stored upstream OAuth authorizations, sessions, and expiry without printing token values.
+
+```bash
+fentaris auth status --json
+fentaris auth status linear --json
+```
+
+### `fentaris auth logout <mcp>`
+
+Delete one stored upstream authorization. The next call requires login again.
+
+```bash
+fentaris auth logout linear --as user:alice
+```
 
 ### `fentaris auth api-key`
 
@@ -167,7 +205,7 @@ fentaris auth api-key add [OPTIONS] [user-id]
 Agent-safe patterns:
 
 ```bash
-# generated key, non-interactive
+# generated key; run only in a private human terminal or verified non-recorded secret-output channel
 fentaris auth api-key add alice --generate
 
 # caller-provided key via stdin (never via --value in scripts)
@@ -227,7 +265,7 @@ fentaris secrets setup [OPTIONS]
 - `--key <KEY>`
 - `--help` / `-h`
 
-Agent-safe pattern: `fentaris secrets setup --dry-run --json` to inspect the plan first, then `--yes --json` to apply it once all required external values are available.
+Agent-safe inspection: run `fentaris secrets setup --dry-run --json` first. If the plan generates API keys, the apply response from `--yes --json` contains their raw one-time values in `data.generatedApiKeys`; apply only in a verified non-recorded output channel or private human terminal. A retained agent terminal may apply only when the dry-run proves no API keys will be generated and all external values are available.
 
 ### `fentaris secrets set [reference]`
 

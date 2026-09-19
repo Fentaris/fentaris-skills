@@ -9,7 +9,7 @@ Read `discovery.md` first when the user is still deciding how Fentaris should fi
 Choose this when the user wants a quick local MCP proxy for one developer or a prototype.
 
 - Use `fentaris init <name>` when available.
-- Keep host on `127.0.0.1`, path `/mcp`, and the generated default port in `fentaris.json` unless the user asks otherwise.
+- Keep the default loopback binding on `127.0.0.1`; keep path `/mcp` and the generated default port in `fentaris.json` unless the user asks otherwise. `host` is not a `fentaris.json` field.
 - Keep policies explicit even for demos. If temporary broad access is needed, label it as development-only in code comments or local docs.
 - Validate with `fentaris check --offline` and, after starting the proxy, `fentaris doctor --runtime`.
 
@@ -30,8 +30,9 @@ Choose this when the user mentions production, staging, governance, approvals, c
 
 - Bind publicly only when a deployment boundary is explicit.
 - Configure auth, policies, logging, and Fentaris encrypted secrets before exposure.
-- Do not promise OAuth 2.1 support. Use Fentaris-managed API keys, trusted header identity, or an existing trusted auth boundary until OAuth 2.1 support exists.
-- Keep endpoint path, host, and port stable and configurable through `fentaris.json`.
+- Choose client-to-Fentaris identity separately from upstream auth. Use Fentaris-managed API keys, trusted header identity, or an existing trusted auth boundary for clients; use `oauth()` for OAuth-protected native HTTP/SSE upstreams.
+- Persist OAuth tokens with the encrypted local store or an explicit production store; do not rely on in-memory OAuth state across restarts.
+- Keep endpoint path and port stable in `fentaris.json`. Keep the default loopback host or configure a supported application-level host option when intentional exposure requires it.
 - Do not run or invent deploy commands. State that Fentaris deploy is not available yet and the CLI is expected to add a smoother deploy flow later.
 
 ## Existing App Embedding

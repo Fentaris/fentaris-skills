@@ -4,8 +4,9 @@
   "groupings": [
     {
       "title": "Fentaris",
-      "description": "Skills for introducing, creating, configuring, and extending Fentaris MCP proxy projects.",
+      "description": "Skills for installing, migrating, creating, configuring, and extending Fentaris MCP proxy projects.",
       "skills": [
+        "fentaris-machine-setup",
         "fentaris-project-setup",
         "fentaris-app-development",
         "fentaris-cli-usage"

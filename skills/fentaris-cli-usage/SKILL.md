@@ -1,6 +1,6 @@
 ---
 name: fentaris-cli-usage
-description: Explain and operate the Fentaris CLI (`fentaris`) itself, command by command. Use when the user asks what a Fentaris CLI command does, which flags to use, how to run it non-interactively, or how commands fit together (init, dev, build, check, doctor, auth, secrets, tools, edge). Use for CLI reference/help questions and for driving the CLI from an agent, not for choosing a project architecture (`fentaris-project-setup`) or for editing TypeScript app code (`fentaris-app-development`).
+description: Explain and operate the Fentaris CLI (`fentaris`) itself, command by command. Use when the user asks what a command does, which flags to use, how to run it safely, or how commands fit together (init, dev, build, check, doctor, upstream OAuth and local API keys under auth, secrets, tools, edge). Use for CLI reference/help and agent-driven CLI operation, not for architecture (`fentaris-project-setup`), whole-machine migration (`fentaris-machine-setup`), or TypeScript app edits (`fentaris-app-development`).
 ---
 
 # Fentaris CLI Usage
@@ -19,7 +19,7 @@ If the user's question is "how do I set up Fentaris" or "how do I add an upstrea
 2. Prefer the installed CLI's own help as the source of truth over memorized command shapes: run `fentaris --help`, `fentaris <command> --help`, or `fentaris <command> <subcommand> --help` before asserting exact flags for an unfamiliar or possibly newer CLI version. Reconcile any difference with `references/commands.md` rather than guessing.
 3. When the user wants an explanation, answer directly from `references/commands.md`: what the command does, its required/optional arguments, its important flags, and one runnable example.
 4. When the user wants the agent to run CLI commands, read `references/automation.md` first and prefer the non-interactive, explicit-flag form of each command so the run is reproducible and script-safe.
-5. Never print secret or API-key values from command output, examples, or logs. Prefer `--value-stdin` over `--value` for anything that accepts a secret, and prefer `--generate` when the caller does not need to choose the value.
+5. Never print secret or API-key values from command output, examples, or logs. Prefer `--value-stdin` over `--value`. Because `auth api-key ... --generate` prints the raw key once, use it only in a verified non-recorded secret-output channel or private human terminal, never an ordinary retained agent transcript.
 6. Route JSON needs to `--json`/`--compact` flags where the command supports them (`check`, `doctor`, `secrets list`, `tools list`, `edge *`) instead of parsing human-readable output.
 7. If a command's behavior depends on project state (no `fentaris.json`, missing entrypoint, no local secrets key), explain the likely diagnostic first (`fentaris check`/`fentaris doctor`) instead of guessing why a command failed.
 8. Point production/deploy questions to the current limitation: `fentaris` has no deploy command yet; `build` produces a deterministic local artifact only.
@@ -28,7 +28,7 @@ If the user's question is "how do I set up Fentaris" or "how do I add an upstrea
 
 - **Project**: `init` (scaffold), `dev` (run in development mode), `build` (deterministic local artifact).
 - **Health**: `check` (static project checks), `doctor` (environment + project diagnostics, optional `--fix` and `--runtime`).
-- **Identity & secrets**: `auth` / `auth api-key` (local user API keys), `secrets` (credential values and the secrets manifest).
+- **Identity & secrets**: `auth login/status/logout` (upstream OAuth authorizations), `auth api-key` (local client API keys), and `secrets` (credential values and the secrets manifest).
 - **Discovery**: `tools` (list/search/inspect effective MCP tools and account auth across configured accounts).
 - **Edge** (alpha/preview): `edge` (enroll, run, and operate governed Edge computers/devices).
 
@@ -36,7 +36,8 @@ Every command supports `--help`/`-h`. The root command also supports `--version`
 
 ## Safety Defaults
 
-- Never echo secret values, generated API keys, or `FENTARIS_AUTH_KEY` in explanations, logs, or command examples beyond the one-time value the CLI itself prints on generation.
+- Never echo OAuth tokens, client secrets, secret values, generated API keys, or `FENTARIS_AUTH_KEY` in explanations, logs, or command examples. Treat the one-time API-key value printed on generation as secret output and keep it out of retained agent transcripts.
+- Authorization-code OAuth is not fully unattended: an agent may start the flow, but a human must complete consent. Use `--print-url` in headless environments and do not bypass that boundary.
 - Default to `--non-interactive` plus explicit flags for any command run by an agent; only fall back to interactive/guided mode when a human is present to answer prompts.
 - Do not invent flags. If unsure whether a flag exists on the installed CLI version, check `--help` output or `references/commands.md` before stating it as fact.
 - Do not suggest `fentaris deploy`; it does not exist. Redirect deploy questions to `build` plus the user's own hosting/process-manager setup.

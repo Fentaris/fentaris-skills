@@ -8,6 +8,7 @@ Before asking setup questions, decide which help the user needs:
 
 - Introduction or architecture guidance: use this setup skill.
 - Brand-new proxy project: use this setup skill, then proceed to project creation after discovery.
+- Whole-machine installation, AI-client inventory, or migration of existing MCP configs: use `fentaris-machine-setup` when available.
 - Existing Fentaris app changes: tell the user to use `fentaris-app-development`, the skill for using, modifying, debugging, and validating Fentaris apps.
 - Fentaris framework repository changes: do not use this skill.
 
@@ -56,6 +57,7 @@ Ask only the unanswered questions needed for the next decision. Prefer 1-4 quest
 - Which MCP servers should be connected first?
 - For each server, is it stdio, Streamable HTTP, SSE/HTTP, or unknown?
 - Which servers require credentials that should be stored as Fentaris encrypted secrets?
+- Which HTTP/SSE servers require OAuth 2.1, and should authorizations be per-user or shared?
 - Does Fentaris need to expose custom/local MCP tools, resources, prompts, or completions implemented in the app itself?
 - Which tools should be allowed initially, and which should be blocked?
 
@@ -66,9 +68,10 @@ Ask only the unanswered questions needed for the next decision. Prefer 1-4 quest
 - Should calls be logged for debugging, audit, or both?
 - Are there staging/production differences to plan for?
 
-## Current Limits To Surface
+## Auth Boundaries And Current Limits
 
-- OAuth 2.1 is not supported yet. Do not promise OAuth 2.1 setup. If the user asks for OAuth, explain the current limit and suggest a temporary architecture with API keys, trusted upstream identity headers, or an external auth boundary.
+- Do not conflate client-to-Fentaris auth with Fentaris-to-upstream auth. Client identity typically uses Fentaris API keys, trusted headers, or an existing auth boundary.
+- Native Streamable HTTP and SSE upstreams can use OAuth 2.1 through `oauth()`. Stdio upstreams cannot. Read `oauth.md` before recommending a mode, and preserve a human consent step for authorization-code flows.
 - Fentaris deploy is not available yet. Do not run deploy commands. Shape the project so it can move cleanly to a future CLI deploy flow.
 
 ## Recommendation Shape

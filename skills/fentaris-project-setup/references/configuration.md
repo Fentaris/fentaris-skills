@@ -8,7 +8,7 @@
 4. Run `fentaris init --help` and choose explicit CLI options for package manager, port, path, install, and git behavior instead of relying on interactive prompts.
 5. Generate the project with `fentaris init <project-name> --non-interactive` plus the explicit options supported by the installed CLI: `--package-manager <pnpm|npm|bun>`, `--port <port>`, `--path <path>`, `--skip-install`, and `--skip-git`. If `--non-interactive` still prompts, use documented options or ask the user for that one prompt value.
 6. Inspect the generated project before editing. Prefer CLI commands and generated config over TypeScript rewrites.
-7. Configure `fentaris.json` for project discovery, runtime entrypoint, port, host, endpoint path, and local auth directory.
+7. Configure `fentaris.json` for project discovery, runtime entrypoint, port, endpoint path, and local auth directory. `host` is not a `fentaris.json` field; keep the default loopback binding or use the supported application-level host option only for intentional exposure.
 8. Edit the TypeScript entrypoint only for the smallest supported app declaration changes:
    - `fentaris(...)` as the app boundary.
    - `app.mcp(...)` or `mcp(...)` for upstream servers.
@@ -16,8 +16,9 @@
    - `policy(...)`, `group(...)`, and `user(...)` for access control.
    - Built-in transport helpers such as stdio or Streamable HTTP where appropriate.
 9. Add secrets through Fentaris encrypted secret commands with `--non-interactive`. Do not store secret values in `.env` files or raw environment variables, and do not embed secret values in code.
-10. Add user API keys through `fentaris auth api-key` commands when the installed CLI is 1.1.0 or newer; do not create custom registration scripts.
-11. Add docs only when they help the user run the generated project. Do not add custom scripts unless the user explicitly requested the script and no CLI command exists.
+10. For OAuth-protected native Streamable HTTP or SSE upstreams, read `oauth.md`, declare `auth: oauth(...)`, configure persistent encrypted storage, and use `fentaris auth login` for authorization-code consent. Do not attach `oauth()` to stdio.
+11. Add user API keys through `fentaris auth api-key` commands when the installed CLI is 1.1.0 or newer; do not create custom registration scripts.
+12. Add docs only when they help the user run the generated project. Do not add custom scripts unless the user explicitly requested the script and no CLI command exists.
 
 ## User And Runtime Decisions
 
@@ -25,11 +26,11 @@
 - Different computers or team use: discuss where the proxy runs, which network can reach it, and what auth/policy protects it.
 - Cloud-shaped setup: keep non-secret runtime config in `fentaris.json` and deploy-ready, but do not run deploy because deploy is not available yet. Keep actual secret values in Fentaris encrypted secrets.
 - Existing app identity: map trusted headers or app context into Fentaris user identity at the proxy edge.
-- OAuth request: explain that OAuth 2.1 is not supported yet and choose API-key/header identity or an external auth boundary instead.
+- OAuth request: determine whether the user means client-to-Fentaris auth or an upstream OAuth server. Use API-key/header identity or an external boundary for clients; use `oauth()` for supported native HTTP/SSE upstreams.
 
 ## Preferred Implementation Pattern
 
-Prefer the generated entrypoint and keep it small. Runtime config such as host, port, path, runtime entrypoint, and local auth directory must come from `fentaris.json` rather than `process.env`.
+Prefer the generated entrypoint and keep it small. Supported project config such as port, path, runtime entrypoint, and local auth directory must come from `fentaris.json` rather than `process.env`. Keep the default loopback host; when intentional exposure requires another host, configure it through the supported application boundary because `host` is not a `fentaris.json` field.
 
 When TypeScript edits are necessary, prefer a single readable app boundary:
 
@@ -114,8 +115,8 @@ For common upstreams such as GitHub or Notion:
 
 Use `fentaris.json` as the source of truth for non-secret project and runtime configuration.
 
-- Put project discovery, runtime entrypoint, host, port, endpoint path, and local auth directory in `fentaris.json`.
-- Do not generate `process.env` fallbacks for host, port, or endpoint path as the default setup pattern.
+- Put project discovery, runtime entrypoint, port, endpoint path, and local auth directory in `fentaris.json`.
+- Do not generate `process.env` fallbacks for host, port, or endpoint path as the default setup pattern. `host` is not a `fentaris.json` field; keep loopback or configure the supported application-level host option intentionally.
 - Keep per-environment non-secret values in the Fentaris config model supported by the current CLI/docs, not in ad hoc env vars.
 - Keep secret values out of `fentaris.json`; store them as Fentaris encrypted secrets and reference them by name when the config/API supports it.
 
@@ -130,12 +131,23 @@ Use Fentaris CLI secret management as the default path for credentials.
 - Do not echo, log, document, or commit secret values.
 - If a secret value is required and the user has not provided it through a safe path, stop and ask for the value or for permission to leave a placeholder secret name.
 
+## Upstream OAuth 2.1
+
+Read `oauth.md` before implementing OAuth. Keep these invariants:
+
+- `oauth()` is upstream authentication, not client authentication for the Fentaris endpoint.
+- It is supported only by native `streamableHttp()` and `sse()` transports, not stdio.
+- Authorization-code flows require a human consent step. Agents may start the flow but must not claim it can be completed unattended.
+- Use per-user tokens only when callers resolve to distinct authenticated Fentaris users. Unauthenticated callers collapse to the shared OAuth session; require explicit approval for that account sharing.
+- Ensure `FENTARIS_AUTH_KEY` or `oauth.store` is present so authorizations survive restarts.
+- Use `fentaris auth status` for non-sensitive verification; it never prints tokens.
+
 ## User API Keys
 
 For Fentaris CLI 1.1.0 and newer, user API keys are CLI-managed local auth state:
 
 - Add a provided key with `fentaris auth api-key add <user-id> --value-stdin`.
-- Generate a new key with `fentaris auth api-key add <user-id> --generate`; record it for the user only once because Fentaris stores a hash.
+- `fentaris auth api-key add <user-id> --generate` prints the raw key once because Fentaris stores only a hash. Run it only in a verified non-recorded secret-output channel or private human terminal; otherwise use protected input with `--value-stdin`.
 - List stored key counts with `fentaris auth api-key list --user <user-id> --json` when automation needs structured output.
 - Remove a key with `fentaris auth api-key remove <user-id> --value-stdin`.
 - Clients authenticate with `x-fentaris-api-key`.
